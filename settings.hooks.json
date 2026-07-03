@@ -6,7 +6,18 @@
           {
             "type": "command",
             "command": "python3 ~/.claude/hooks/calque-display.py",
-            "timeout": 10
+            "timeout": 2
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/calque-hint-inject.py",
+            "timeout": 1
           }
         ]
       }
@@ -17,7 +28,7 @@
           {
             "type": "command",
             "command": "python3 ~/.claude/hooks/calque-hint-inject.py",
-            "timeout": 10
+            "timeout": 1
           }
         ]
       }

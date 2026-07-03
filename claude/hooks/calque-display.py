@@ -19,8 +19,9 @@ On the original text, in non-exempt prose:
 
 Findings accumulate per message (in md_<message_id>.json across flushes) and on
 the final flush are merged into the session pending (<session>.pending.json) for
-the UserPromptSubmit injector (calque-hint-inject.py) to feed the model next
-turn. Screen-only: the transcript and model context keep the original.
+the injector (calque-hint-inject.py) to feed the model — at the next PostToolUse
+mid-turn, or UserPromptSubmit if the turn used no tools. Screen-only: the
+transcript and model context keep the original.
 
 Exempt (no detect, no replace): fenced code, <meta-discussion> zones, inline
 `code`, the tool name «Анти-калька», and any message inside a /calque-blocklist

@@ -38,7 +38,7 @@ fi
 
 echo
 echo "Done copying. Two manual steps remain (see README.md):"
-echo "  1. Add the two hooks from settings.hooks.json to $DEST/settings.json"
+echo "  1. Add the hook blocks from settings.hooks.json to $DEST/settings.json"
 echo "  2. Add  @~/.claude/calque-stoplist.md  to your $DEST/CLAUDE.md"
 echo
 bash "$DEST/skills/calque-blocklist/scripts/validate.sh"

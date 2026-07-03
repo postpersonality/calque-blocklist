@@ -1,12 +1,19 @@
 #!/usr/bin/env python3
-"""UserPromptSubmit hook: feed a pending «Анти-калька» remark into the model.
+"""Feed a pending «Анти-калька» remark into the model — registered on PostToolUse
+(primary) and UserPromptSubmit (fallback).
 
-Companion to calque-display.py (MessageDisplay stasher). At turn end the stasher
-records the calques it found in ~/.claude/calque_guard/<session>.pending.json, split
-by severity ({"high": …, "low": …}). On the user's NEXT prompt this hook reads that
-file and returns the remark as `additionalContext`, grouped by severity, so the
-model takes it into account on the next step (no redo of the past turn). The
-pending file is consumed (deleted) once injected. Any error -> exit 0.
+Companion to calque-display.py (MessageDisplay stasher). As the turn runs, the
+stasher records the calques it found in ~/.claude/calque_guard/<session>.pending.json,
+split by severity ({"high": …, "low": …}). This hook reads that file and returns the
+remark as `additionalContext`, grouped by severity, so the model takes it into account
+on the next step (no redo of the past output).
+
+PostToolUse fires after every tool call mid-turn, so in a long agent chain the remark
+reaches the model at the first tool call after the offending message — not one user
+turn later. UserPromptSubmit stays registered as the fallback for turns with no tool
+calls (pure text), where PostToolUse never fires. The pending file is consumed
+(atomic claim-rename) once injected, so exactly one of the two events delivers it.
+The output echoes the actual triggering event in `hookEventName`. Any error -> exit 0.
 """
 import json
 import os
@@ -31,6 +38,7 @@ def main():
     raw = sys.stdin.read()
     payload = json.loads(raw) if raw.strip() else {}
     session_id = payload.get("session_id") or payload.get("sessionId") or ""
+    event = payload.get("hook_event_name") or payload.get("hookEventName") or "UserPromptSubmit"
     if not session_id:
         return
     sid = re.sub(r"[^A-Za-z0-9_-]", "_", session_id)
@@ -68,7 +76,7 @@ def main():
 
     print(json.dumps({
         "hookSpecificOutput": {
-            "hookEventName": "UserPromptSubmit",
+            "hookEventName": event,
             "additionalContext": context,
         }
     }, ensure_ascii=False))
